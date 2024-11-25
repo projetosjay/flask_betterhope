@@ -1,0 +1,253 @@
+<!-- profile.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #A2AEF7, #FCF8CC);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #A2AEF7;
+        }
+
+        .back-arrow:hover {
+            color: #8b9af0;
+        }
+
+        h2 {
+            color: #A2AEF7;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #eee;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .info-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #A2AEF7;
+            border-radius: 5px;
+            font-size: 1.1em;
+            display: none;
+        }
+
+        .info-input.active {
+            display: block;
+        }
+
+        .info-value.hidden {
+            display: none;
+        }
+
+        button {
+            background: #A2AEF7;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #8b9af0;
+            transform: translateY(-2px);
+        }
+
+        .save-button {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .save-button.active {
+            display: block;
+        }
+
+        .logout-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            color: #A2AEF7;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: #8b9af0;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="back-arrow" onclick="history.back()">←</div>
+        <h2>Meu Perfil</h2>
+        <div class="profile-section">
+            <div class="info-group">
+                <div class="info-label">Nome de usuário</div>
+                <div class="info-value" id="usernameValue">{{ user.username }}</div>
+                <input type="text" class="info-input" id="usernameInput" value="{{ user.username }}">
+            </div>
+            <div class="info-group">
+                <div class="info-label">Email</div>
+                <div class="info-value" id="emailValue">{{ user.email }}</div>
+                <input type="email" class="info-input" id="emailInput" value="{{ user.email }}">
+            </div>
+            <button id="editProfileButton">
+                Editar Perfil
+            </button>
+            <button id="saveProfileButton" class="save-button">
+                Salvar
+            </button>
+        </div>
+        <div class="logout-link">
+            <a href="{{ url_for('auth.logout') }}">Sair da conta</a>
+        </div>
+    </div>
+
+    <script>
+        const editProfileButton = document.getElementById('editProfileButton');
+        const saveProfileButton = document.getElementById('saveProfileButton');
+        const usernameValue = document.getElementById('usernameValue');
+        const emailValue = document.getElementById('emailValue');
+        const usernameInput = document.getElementById('usernameInput');
+        const emailInput = document.getElementById('emailInput');
+
+        editProfileButton.addEventListener('click', () => {
+            const isEditing = usernameInput.classList.contains('active');
+            
+            if (isEditing) {
+                // Cancel editing
+                toggleEditMode(false);
+                editProfileButton.textContent = 'Editar Perfil';
+                saveProfileButton.classList.remove('active');
+            } else {
+                // Enable editing
+                toggleEditMode(true);
+                editProfileButton.textContent = 'Cancelar';
+                saveProfileButton.classList.add('active');
+            }
+        });
+
+        function toggleEditMode(enabled) {
+            const elements = [usernameInput, emailInput];
+            const valueElements = [usernameValue, emailValue];
+            
+            elements.forEach(element => {
+                if (enabled) {
+                    element.classList.add('active');
+                } else {
+                    element.classList.remove('active');
+                }
+            });
+
+            valueElements.forEach(element => {
+                if (enabled) {
+                    element.classList.add('hidden');
+                } else {
+                    element.classList.remove('hidden');
+                }
+            });
+        }
+
+        saveProfileButton.addEventListener('click', () => {
+            const username = usernameInput.value;
+            const email = emailInput.value;
+
+            fetch('/update_profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    usernameValue.textContent = username;
+                    emailValue.textContent = email;
+                    toggleEditMode(false);
+                    editProfileButton.textContent = 'Editar Perfil';
+                    saveProfileButton.classList.remove('active');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

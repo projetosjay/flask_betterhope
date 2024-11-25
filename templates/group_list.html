@@ -1,0 +1,912 @@
+<!-- group_list.html -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupos de Chat</title>
+    <style>
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #A2AEF7, #FCF8CC);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            color: #A2AEF7;
+            text-align: center;
+            margin-bottom: 0;
+            font-size: 2em;
+            font-weight: 600;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .search-container input:focus {
+            border-color: #A2AEF7;
+            outline: none;
+            background: white;
+        }
+
+        .groups-container {
+            display: grid;
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .group-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .group-card.hidden {
+            display: none;
+        }
+
+        .group-card:hover {
+            transform: translateY(-2px);
+            border-color: #A2AEF7;
+            background: white;
+        }
+
+        .group-image {
+            width: 60px;
+            height: 60px;
+            background: #A2AEF7;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .group-info {
+            flex: 1;
+        }
+
+        .group-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .group-description {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .group-meta {
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .group-members {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .category {
+            padding: 8px 15px;
+            background: #f0f2f5;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .category:hover, .category.active {
+            background: #A2AEF7;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            display: none;
+        }
+
+        .groups-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .groups-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .groups-container::-webkit-scrollbar-thumb {
+            background: #A2AEF7;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .group-image {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #A2AEF7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .profile-icon:hover {
+            transform: translateY(-2px);
+            border-color: #8b9af0;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-icon::after {
+            content: 'Ver perfil';
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .profile-icon:hover::after {
+            opacity: 1;
+        }
+
+        .add-group-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #A2AEF7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            margin-left: 10px;
+        }
+
+        .add-group-icon:hover {
+            transform: translateY(-2px);
+            border-color: #8b9af0;
+        }
+
+        .add-group-icon::after {
+            content: 'Adicionar grupo';
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .add-group-icon:hover::after {
+            opacity: 1;
+        }
+
+        .create-group-form {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .create-group-form.active {
+            display: flex;
+        }
+
+        .create-group-form input, .create-group-form textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .create-group-form input:focus, .create-group-form textarea:focus {
+            border-color: #A2AEF7;
+            outline: none;
+            background: white;
+        }
+
+        .create-group-form button {
+            background: #A2AEF7;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .create-group-form button:hover {
+            background: #8b9af0;
+            transform: translateY(-2px);
+        }
+        .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        border-radius: 10px;
+    }
+
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .modal-content h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-content input,
+    .modal-content textarea {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        margin-bottom: 15px;
+    }
+
+    .modal-content input:focus,
+    .modal-content textarea:focus {
+        border-color: #A2AEF7;
+        outline: none;
+        background: white;
+    }
+
+    .modal-content button {
+        background: #A2AEF7;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .modal-content button:hover {
+        background: #8b9af0;
+        transform: translateY(-2px);
+    }
+
+    .modal-content select {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        margin-bottom: 15px;
+    }
+
+    .modal-content select:focus {
+        border-color: #A2AEF7;
+        outline: none;
+        background: white;
+    }
+    .group-category {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+.group-card {
+            position: relative;
+        }
+
+        .group-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .group-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .group-actions button:hover {
+            color: #333;
+        }
+        .group-card {
+            position: relative;
+        }
+
+        .group-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .group-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .group-actions button:hover {
+            color: #333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus {
+            border-color: #A2AEF7;
+            outline: none;
+            background: white;
+        }
+
+        .modal-content button {
+            background: #A2AEF7;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .modal-content button:hover {
+            background: #8b9af0;
+            transform: translateY(-2px);
+        }
+
+        .modal-content select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        .modal-content select:focus {
+            border-color: #A2AEF7;
+            outline: none;
+            background: white;
+        }
+        .view-forms-icon {
+    width: auto;
+    padding: 10px;
+    border-radius: 50px;
+    background: #A2AEF7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    margin-left: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+}
+
+.view-forms-icon:hover {
+    transform: translateY(-2px);
+    border-color: #8b9af0;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="width: 40px"></div>
+            <h2>Grupos de Chat</h2>
+            <a href="{{ url_for('auth.profile') }}" class="profile-icon">
+                <img src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="Avatar Padrão" class="profile-image">
+            </a>
+            {% if current_user.email == 'jayadm@gmail.com' %}
+            <div class="add-group-icon" id="addGroupIcon">+</div>
+            <a href="{{ url_for('main.contact_forms') }}" class="view-forms-icon">Ver Forms</a>
+            {% endif %}
+        </div>
+        
+
+        <div class="search-container">
+            <input type="text" placeholder="Buscar grupos..." id="searchInput">
+        </div>
+
+        <div class="categories" id="categories">
+            <div class="category active" data-category="todos">Todos</div>
+            <div class="category" data-category="descoberta">Descoberta</div>
+            <div class="category" data-category="aceitação">Aceitação</div>
+            <div class="category" data-category="gravidez">Gravidez</div>
+            <div class="category" data-category="família">Família</div>
+            <div class="category" data-category="educação">Educação</div>
+            <div class="category" data-category="social e escolar">Social e Escolar</div>
+        </div>
+
+        <div class="groups-container" id="groupsContainer">
+            {% for group in groups %}
+            <div class="group-card" data-categories="{{ group.categories }}" data-group-id="{{ group.id }}">
+                <div class="group-image">{{ group.name[0] }}</div>
+                <div class="group-info">
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-description">{{ group.description }}</div>
+                    <div class="group-category">{{ group.categories }}</div>
+                    <div class="group-meta">
+                        <div class="group-members">
+                            <span>👥 {{ group.member_count }} membros</span>
+                        </div>
+                        <span>🟢 {{ group.online_members }} online</span>
+                    </div>
+                </div>
+                {% if current_user.email == 'jayadm@gmail.com' %}
+                <div class="group-actions">
+                    <button data-group-id="{{ group.id }}" class="delete-button">🗑️</button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="no-results" id="noResults">
+            Nenhum grupo encontrado com esses critérios.
+        </div>
+
+        <!-- Modais para edição e exclusão -->
+        <div class="modal" id="editGroupModal">
+            <div class="modal-content">
+                <span class="close-button" id="closeEditModal">&times;</span>
+                <h2>Editar Grupo</h2>
+                <form id="editGroupForm">
+                    <input type="hidden" id="editGroupId">
+                    <input type="text" placeholder="Nome do grupo" id="editGroupName" required>
+                    <textarea placeholder="Descrição do grupo" id="editGroupDescription" required></textarea>
+                    <label for="editGroupCategories">Categorias:</label>
+                    <select id="editGroupCategories" multiple>
+                        <option value="descoberta">Descoberta</option>
+                        <option value="aceitação">Aceitação</option>
+                        <option value="gravidez">Gravidez</option>
+                        <option value="família">Família</option>
+                        <option value="educação">Educação</option>
+                        <option value="social e escolar">Social e Escolar</option>
+                    </select>
+                    <button type="button" id="saveEditGroupButton">Salvar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal" id="deleteGroupModal">
+            <div class="modal-content">
+                <span class="close-button" id="closeDeleteModal">&times;</span>
+                <h2>Excluir Grupo</h2>
+                <p>Tem certeza que deseja excluir este grupo?</p>
+                <button type="button" id="confirmDeleteGroupButton">Excluir</button>
+            </div>
+        </div>
+    </div>
+        <div class="modal" id="createGroupModal">
+            <div class="modal-content">
+                <span class="close-button" id="closeModal">&times;</span>
+                <h2>Criar Novo Grupo</h2>
+                <form id="createGroupForm">
+                    <input type="text" placeholder="Nome do grupo" id="groupName" required>
+                    <textarea placeholder="Descrição do grupo" id="groupDescription" required></textarea>
+                    <label for="groupCategories">Categorias:</label>
+                    <select id="groupCategories" multiple>
+                        <option value="descoberta">Descoberta</option>
+                        <option value="aceitação">Aceitação</option>
+                        <option value="gravidez">Gravidez</option>
+                        <option value="família">Família</option>
+                        <option value="educação">Educação</option>
+                        <option value="social e escolar">Social e Escolar</option>
+                    </select>
+                    <button type="button" id="createGroupButton">Criar Grupo</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const groupsContainer = document.getElementById('groupsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const categoriesContainer = document.getElementById('categories');
+        const noResults = document.getElementById('noResults');
+        const addGroupIcon = document.getElementById('addGroupIcon');
+        const createGroupModal = document.getElementById('createGroupModal');
+        const closeModal = document.getElementById('closeModal');
+        const groupNameInput = document.getElementById('groupName');
+        const groupDescriptionInput = document.getElementById('groupDescription');
+        const groupCategoriesInput = document.getElementById('groupCategories');
+        const createGroupButton = document.getElementById('createGroupButton');
+
+        function filterGroups() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeCategory = document.querySelector('.category.active').dataset.category;
+            let hasVisibleGroups = false;
+
+            document.querySelectorAll('.group-card').forEach(card => {
+                const groupName = card.querySelector('.group-name').textContent.toLowerCase();
+                const groupDescription = card.querySelector('.group-description').textContent.toLowerCase();
+                const groupCategories = card.dataset.categories.split(',').map(category => category.trim().toLowerCase());
+                const matchesSearch = groupName.includes(searchTerm) ||
+                                    groupDescription.includes(searchTerm);
+                const matchesCategory = activeCategory === 'todos' ||
+                                      groupCategories.includes(activeCategory.toLowerCase());
+
+                if (matchesSearch && matchesCategory) {
+                    card.classList.remove('hidden');
+                    hasVisibleGroups = true;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            noResults.style.display = hasVisibleGroups ? 'none' : 'block';
+        }
+
+        document.querySelectorAll('.group-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const groupId = card.dataset.groupId;
+                window.location.href = `/group/${groupId}`;
+            });
+        });
+
+        searchInput.addEventListener('input', filterGroups);
+
+        categoriesContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category')) {
+                document.querySelectorAll('.category').forEach(cat => {
+                    cat.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                filterGroups();
+            }
+        });
+
+        addGroupIcon.addEventListener('click', () => {
+            createGroupModal.style.display = 'block';
+        });
+
+        closeModal.addEventListener('click', () => {
+            createGroupModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === createGroupModal) {
+                createGroupModal.style.display = 'none';
+            }
+        });
+
+        createGroupButton.addEventListener('click', () => {
+            const groupName = groupNameInput.value;
+            const groupDescription = groupDescriptionInput.value;
+            const groupCategories = Array.from(groupCategoriesInput.selectedOptions).map(option => option.value);
+
+            if (groupName && groupDescription && groupCategories.length > 0) {
+                fetch('/create_group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        group_name: groupName,
+                        description: groupDescription,
+                        categories: groupCategories
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        });
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation(); // Impede a propagação do evento de clique
+                const groupId = button.getAttribute('data-group-id');
+                openEditModal(groupId);
+            });
+        });
+
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation(); // Impede a propagação do evento de clique
+                const groupId = button.getAttribute('data-group-id');
+                openDeleteModal(groupId);
+            });
+        });
+
+        function openEditModal(groupId) {
+            const group = groups.find(g => g.id === parseInt(groupId));
+            document.getElementById('editGroupId').value = groupId;
+            document.getElementById('editGroupName').value = group.name;
+            document.getElementById('editGroupDescription').value = group.description;
+            const categories = group.categories.split(',').map(category => category.trim());
+            const select = document.getElementById('editGroupCategories');
+            select.selectedOptions.forEach(option => option.selected = false);
+            categories.forEach(category => {
+                const option = Array.from(select.options).find(opt => opt.value === category);
+                if (option) option.selected = true;
+            });
+            document.getElementById('editGroupModal').style.display = 'block';
+        }
+
+        function openDeleteModal(groupId) {
+            document.getElementById('editGroupId').value = groupId;
+            document.getElementById('deleteGroupModal').style.display = 'block';
+        }
+
+        document.getElementById('closeEditModal').addEventListener('click', () => {
+            document.getElementById('editGroupModal').style.display = 'none';
+        });
+
+        document.getElementById('closeDeleteModal').addEventListener('click', () => {
+            document.getElementById('deleteGroupModal').style.display = 'none';
+        });
+
+        document.getElementById('saveEditGroupButton').addEventListener('click', () => {
+            const groupId = document.getElementById('editGroupId').value;
+            const groupName = document.getElementById('editGroupName').value;
+            const groupDescription = document.getElementById('editGroupDescription').value;
+            const groupCategories = Array.from(document.getElementById('editGroupCategories').selectedOptions).map(option => option.value);
+
+            fetch(`/edit_group/${groupId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    group_name: groupName,
+                    description: groupDescription,
+                    categories: groupCategories
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('confirmDeleteGroupButton').addEventListener('click', () => {
+            const groupId = document.getElementById('editGroupId').value;
+
+            fetch(`/delete_group/${groupId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

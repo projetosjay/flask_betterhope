@@ -1,0 +1,95 @@
+<!-- contact_forms.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulários de Contato</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #A2AEF7, #FCF8CC);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h2 {
+            color: #A2AEF7;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-form-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #eee;
+        }
+
+        .contact-form-item h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .contact-form-item p {
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .contact-form-item .date {
+            color: #999;
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Formulários de Contato</h2>
+        <div class="contact-form">
+            {% for form in contact_forms %}
+                <div class="contact-form-item">
+                    <h3>{{ form.name }}</h3>
+                    <p><strong>Email:</strong> {{ form.email }}</p>
+                    <p><strong>Mensagem:</strong> {{ form.message }}</p>
+                    <p class="date">{{ form.date_submitted.strftime('%d/%m/%Y %H:%M') }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!-- group_chat.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat do Grupo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #A2AEF7, #FCF8CC);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #e4e6eb;
+        }
+
+        .group-info {
+            text-align: center;
+        }
+
+        .group-name {
+            color: #333;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .online-count {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #A2AEF7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.sent {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .message-content {
+            background: #f0f2f5;
+            padding: 12px;
+            border-radius: 15px;
+            color: #333;
+        }
+
+        .message.sent .message-content {
+            background: #A2AEF7;
+            color: white;
+        }
+
+        .message-info {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .input-area {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 2px solid #f0f2f5;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .message-input:focus {
+            border-color: #A2AEF7;
+            outline: none;
+            background: white;
+        }
+
+        .send-button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #A2AEF7;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: #8b9af0;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #A2AEF7;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/groups" class="back-button">
+                ←
+            </a>
+            <div class="group-info">
+                <div class="group-name">{{ group.name }}</div>
+                <div class="online-count">{{ group.online_members }} online</div>
+            </div>
+            <div class="profile-icon">
+                <img src="{{ user.profile_image or '/api/placeholder/40/40' }}" alt="" class="profile-image">
+            </div>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            {% for message in messages %}
+                <div class="message {{ 'sent' if message.user_id == current_user.id else '' }}">
+                    <div class="message-avatar">{{ message.user.username[0] }}</div>
+                    <div>
+                        <div class="message-content">
+                            {{ message.content }}
+                        </div>
+                        <div class="message-info">
+                            {{ message.user.username }} • {{ message.date_posted.strftime('%H:%M') }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="input-area">
+            <form method="POST" action="{{ url_for('chat.group_chat', group_id=group.id) }}">
+                <input type="text" class="message-input" placeholder="Digite sua mensagem..." name="message" required>
+                <button type="submit" class="send-button">→</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chatArea');
+
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        scrollToBottom();
+    </script>
+</body>
+</html>
